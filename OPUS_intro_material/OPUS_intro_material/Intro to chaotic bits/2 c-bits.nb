@@ -1,0 +1,740 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Mathematica 13.1' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       158,          7]
+NotebookDataLength[     27566,        732]
+NotebookOptionsPosition[     27076,        715]
+NotebookOutlinePosition[     27477,        731]
+CellTagsIndexPosition[     27434,        728]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+
+Cell[CellGroupData[{
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{
+    RowBox[{
+     RowBox[{
+     "Simulating", " ", "a", " ", "system", " ", "of", " ", "2", " ", 
+      "coupled", " ", "c"}], "-", 
+     RowBox[{
+      RowBox[{"bits", ".", " ", "You"}], " ", "can", " ", "mess", " ", "with",
+       " ", "parameters"}]}], ",", " ", 
+    RowBox[{
+    "with", " ", "the", " ", "J", " ", "and", " ", "h", " ", "matrix", " ", 
+     RowBox[{"etc", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+  "\[IndentingNewLine]", 
+  RowBox[{
+   RowBox[{
+    RowBox[{"ClearAll", "[", "\"\<Global`*\>\"", "]"}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{"T", "=", "1"}], ";"}], " ", 
+   RowBox[{"(*", 
+    RowBox[{"set", " ", "temperature", " ", "T", " ", "to", " ", "1"}], 
+    "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"tsim", "=", "50"}], ";"}], " ", 
+   RowBox[{"(*", 
+    RowBox[{
+    "set", " ", "simulation", " ", "duration", " ", "time", " ", "tsim", " ", 
+     "to", " ", "50"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"h", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1"}], "}"}]}], ";"}], " ", 
+   RowBox[{"(*", 
+    RowBox[{"h", " ", "is", " ", "is", " ", "a", " ", 
+     RowBox[{"vector", "[", 
+      RowBox[{"1", ",", "1"}], "]"}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"J", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"{", 
+        RowBox[{"0", ",", 
+         RowBox[{"-", "2"}]}], "}"}], ",", 
+       RowBox[{"{", 
+        RowBox[{
+         RowBox[{"-", "2"}], ",", "0"}], "}"}]}], "}"}]}], ";"}], " ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "J", " ", "is", " ", "a", " ", "2", "x2", " ", "matrix", " ", "with", 
+      " ", "0", " ", "on", " ", "the", " ", "diagonals", " ", "and"}], " ", 
+     "-", 
+     RowBox[{"2", " ", "elsewhere"}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"mm", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"m1", "[", "t", "]"}], ",", 
+       RowBox[{"m2", "[", "t", "]"}]}], "}"}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "mm", " ", "is", " ", "a", " ", "list", " ", "of", " ", "the", " ", 
+      "two", " ", "functions", " ", 
+      RowBox[{"m1", "[", "t", "]"}], " ", "and", " ", 
+      RowBox[{
+       RowBox[{"m2", "[", "t", "]"}], ".", "These"}], " ", "are", " ", 
+      "always", " ", "equal", " ", "to", " ", "either"}], "-", 
+     RowBox[{
+     "1", " ", "or", " ", "1.", " ", "m", " ", "is", " ", "the", " ", 
+      "output", " ", "of", " ", "a", " ", "c"}], "-", 
+     RowBox[{"bit", "."}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"xinit", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"-", "0.8"}], ",", "0"}], "}"}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "xinit", " ", "is", " ", "a", " ", "list", " ", "of", " ", "the", " ", 
+      "two", " ", "initial", " ", "values", " ", "of", " ", "x1", " ", "and", 
+      " ", "x2"}], ",", 
+     RowBox[{
+      RowBox[{
+      "now", " ", "within", " ", "the", " ", "new", " ", "boundary", " ", 
+       "of"}], "-", 
+      RowBox[{"1", " ", "and", " ", "1"}]}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"minit", "=", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", 
+       RowBox[{"-", "1"}]}], "}"}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "minit", " ", "is", " ", "a", " ", "list", " ", "of", " ", "the", " ", 
+      "two", " ", "initial", " ", "values", " ", "of", " ", "m1", " ", "and", 
+      " ", "m2"}], ",", 
+     RowBox[{
+      RowBox[{"which", " ", "is", " ", "the", " ", "c"}], "-", 
+      RowBox[{"bit", " ", "output"}]}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"z", "=", 
+     RowBox[{"h", "+", 
+      RowBox[{"J", ".", "mm"}]}]}], ";"}], "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "z", " ", "is", " ", "a", " ", "vector", " ", "with", " ", "2", " ", 
+      RowBox[{"elements", ".", "The"}], " ", "first", " ", "is", " ", "1"}], 
+     "-", 
+     RowBox[{"2", 
+      RowBox[{
+       RowBox[{"m2", "[", "t", "]"}], ".", "The"}], " ", "second", " ", "is", 
+      " ", "1"}], "-", 
+     RowBox[{"2", 
+      RowBox[{
+       RowBox[{"m1", "[", "t", "]"}], "."}]}]}], "*)"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{"sol", "=", 
+     RowBox[{"First", "@", 
+      RowBox[{"NDSolve", "[", 
+       RowBox[{
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{
+           RowBox[{
+            RowBox[{"x1", "'"}], "[", "t", "]"}], "==", 
+           RowBox[{
+            RowBox[{"-", 
+             RowBox[{"m1", "[", "t", "]"}]}], "+", 
+            RowBox[{"Tanh", "[", 
+             RowBox[{
+              RowBox[{"z", "[", 
+               RowBox[{"[", "1", "]"}], "]"}], "/", "T"}], "]"}]}]}], ",", 
+          RowBox[{
+           RowBox[{
+            RowBox[{"x2", "'"}], "[", "t", "]"}], "==", 
+           RowBox[{
+            RowBox[{"-", 
+             RowBox[{"m2", "[", "t", "]"}]}], "+", 
+            RowBox[{"Tanh", "[", 
+             RowBox[{
+              RowBox[{"z", "[", 
+               RowBox[{"[", "2", "]"}], "]"}], "/", "T"}], "]"}]}]}], ",", 
+          RowBox[{
+           RowBox[{"x1", "[", "0", "]"}], "==", 
+           RowBox[{"xinit", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], ",", 
+          RowBox[{
+           RowBox[{"m1", "[", "0", "]"}], "==", 
+           RowBox[{"minit", "[", 
+            RowBox[{"[", "1", "]"}], "]"}]}], ",", 
+          RowBox[{
+           RowBox[{"x2", "[", "0", "]"}], "==", 
+           RowBox[{"xinit", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+          RowBox[{
+           RowBox[{"m2", "[", "0", "]"}], "==", 
+           RowBox[{"minit", "[", 
+            RowBox[{"[", "2", "]"}], "]"}]}], ",", 
+          RowBox[{"WhenEvent", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"x1", "[", "t", "]"}], "==", "1"}], ",", 
+            RowBox[{
+             RowBox[{"m1", "[", "t", "]"}], "->", "1"}]}], "]"}], ",", 
+          RowBox[{"WhenEvent", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"x1", "[", "t", "]"}], "==", 
+             RowBox[{"-", "1"}]}], ",", 
+            RowBox[{
+             RowBox[{"m1", "[", "t", "]"}], "->", 
+             RowBox[{"-", "1"}]}]}], "]"}], ",", 
+          RowBox[{"WhenEvent", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"x2", "[", "t", "]"}], "==", "1"}], ",", 
+            RowBox[{
+             RowBox[{"m2", "[", "t", "]"}], "->", "1"}]}], "]"}], ",", 
+          RowBox[{"WhenEvent", "[", 
+           RowBox[{
+            RowBox[{
+             RowBox[{"x2", "[", "t", "]"}], "==", 
+             RowBox[{"-", "1"}]}], ",", 
+            RowBox[{
+             RowBox[{"m2", "[", "t", "]"}], "->", 
+             RowBox[{"-", "1"}]}]}], "]"}]}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"x1", ",", "m1", ",", "x2", ",", "m2"}], "}"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"t", ",", "0", ",", "tsim"}], "}"}], ",", 
+        RowBox[{"DiscreteVariables", "->", 
+         RowBox[{"{", 
+          RowBox[{"m1", ",", "m2"}], "}"}]}]}], "]"}]}]}], ";"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"First", "@", "gets"}], " ", "the", " ", "first", " ", "element",
+      " ", "of", " ", "the", " ", "list", " ", "that", " ", "NDSolve", " ", 
+     RowBox[{"returns", ".", "This"}], " ", "would", " ", "be", " ", 
+     RowBox[{"x1", "[", "t", "]"}]}], "*)"}], "\[IndentingNewLine]", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"pointsPerTimeStep", "=", "500"}], ";"}], " ", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+      RowBox[{
+      "Set", " ", "the", " ", "number", " ", "of", " ", "points", " ", 
+       "between", " ", "t"}], "=", 
+      RowBox[{
+       RowBox[{"0", " ", "and", " ", "t"}], "=", "1"}]}], ",", 
+     RowBox[{
+      RowBox[{"or", " ", "t"}], "=", 
+      RowBox[{
+       RowBox[{"1", " ", "and", " ", "t"}], "=", "2"}]}], ",", 
+     RowBox[{"etc", "."}]}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"time", "=", 
+     RowBox[{"Range", "[", 
+      RowBox[{"0.", ",", "tsim", ",", 
+       RowBox[{"1", "/", "pointsPerTimeStep"}]}], "]"}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+    "time", " ", "is", " ", "a", " ", "list", " ", "of", " ", "equally", " ", 
+     "spaced", " ", "t", " ", "values", " ", "between", " ", "0", " ", "and", 
+     " ", "tsim"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"m1vals", "=", 
+     RowBox[{"Map", "[", 
+      RowBox[{
+       RowBox[{"m1", "/.", " ", "sol"}], ",", "time"}], "]"}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+    "m1vals", " ", "is", " ", "a", " ", "list", " ", "of", " ", "the", " ", 
+     "values", " ", "of", " ", "m1", " ", "corresponding", " ", "to", " ", 
+     "the", " ", "t", " ", "values", " ", "in", " ", "time"}], "*)"}], 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"m2vals", "=", 
+     RowBox[{"Map", "[", 
+      RowBox[{
+       RowBox[{"m2", "/.", " ", "sol"}], ",", "time"}], "]"}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+    "m2vals", " ", "is", " ", "a", " ", "list", " ", "of", " ", "the", " ", 
+     "values", " ", "of", " ", "m2", " ", "corresponding", " ", "to", " ", 
+     "the", " ", "t", " ", "values", " ", "in", " ", "time"}], "*)"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{
+     "Adjust", " ", "index", " ", "to", " ", "handle", " ", "new", " ", 
+      "states"}], "-", 
+     RowBox[{"1", " ", "and", " ", "1"}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"index", "=", 
+     RowBox[{"Transpose", "[", 
+      RowBox[{"{", 
+       RowBox[{"m1vals", ",", "m2vals"}], "}"}], "]"}]}], ";"}], 
+   "\[IndentingNewLine]", "\[IndentingNewLine]", 
+   RowBox[{"(*", 
+    RowBox[{
+    "Create", " ", "a", " ", "histogram", " ", "of", " ", "the", " ", 
+     "pairs"}], "*)"}], "\n", 
+   RowBox[{
+    RowBox[{"pairCounts", "=", 
+     RowBox[{"Counts", "[", "index", "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"keys", "=", 
+     RowBox[{"Keys", "[", "pairCounts", "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"values", "=", 
+     RowBox[{"Values", "[", "pairCounts", "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"totalCount", "=", 
+     RowBox[{"Total", "[", "values", "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"frequencies", "=", 
+     RowBox[{"values", "/", "totalCount"}]}], ";"}], "\n", 
+   "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"experimentalPlot", "=", 
+     RowBox[{"BarChart", "[", 
+      RowBox[{"frequencies", ",", 
+       RowBox[{"ChartLabels", "->", 
+        RowBox[{"Placed", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{"ToString", ",", "keys", ",", 
+            RowBox[{"{", "2", "}"}]}], "]"}], ",", "Below"}], "]"}]}], ",", 
+       RowBox[{"LabelingFunction", "->", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"Placed", "[", 
+           RowBox[{"#", ",", "Above"}], "]"}], "&"}], ")"}]}], ",", 
+       RowBox[{"PlotLabel", "->", "\"\<Experimental: Solving the ODE\>\""}]}],
+       "]"}]}], ";"}], "\n", "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"st", "=", 
+     RowBox[{"{", 
+      RowBox[{"st1", ",", "st2"}], "}"}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{
+     RowBox[{"the", " ", "vector"}], ",", 
+     RowBox[{
+     "or", " ", "list", " ", "st", " ", "is", " ", "set", " ", "to", " ", 
+      "st1"}], ",", 
+     RowBox[{
+      RowBox[{"st2", ".", "These"}], " ", "are", " ", "new", " ", "variables",
+       " ", "that", " ", "have", " ", "not", " ", "already", " ", "been", " ", 
+      RowBox[{"defined", "."}]}]}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"en", "=", 
+     RowBox[{
+      RowBox[{"-", 
+       RowBox[{"h", ".", 
+        RowBox[{"Transpose", "[", "st", "]"}]}]}], "-", 
+      RowBox[{"0.5", "*", 
+       RowBox[{"st", ".", "J", ".", 
+        RowBox[{"Transpose", "[", "st", "]"}]}]}]}]}], ";"}], "\n", 
+   RowBox[{"(*", 
+    RowBox[{"en", " ", "is", " ", "another", " ", "new", " ", "variable", " ", 
+     RowBox[{"definition", ".", "Remember"}], " ", "we", " ", "set", " ", "h",
+      " ", "to", " ", 
+     RowBox[{"{", 
+      RowBox[{"1", ",", "1"}], "}"}], " ", "at", " ", "the", " ", 
+     RowBox[{"beginning", ".", " ", "en"}], " ", "comes", " ", "out", " ", 
+     "to"}], "*)"}], "\[IndentingNewLine]", 
+   RowBox[{
+    RowBox[{"Energy1", "=", 
+     RowBox[{"{", 
+      RowBox[{
+       RowBox[{"en", "/.", " ", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"st1", "->", 
+           RowBox[{"-", "1"}]}], ",", 
+          RowBox[{"st2", "->", 
+           RowBox[{"-", "1"}]}]}], "}"}]}], ",", 
+       RowBox[{"en", "/.", " ", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"st1", "->", 
+           RowBox[{"-", "1"}]}], ",", 
+          RowBox[{"st2", "->", "1"}]}], "}"}]}], ",", 
+       RowBox[{"en", "/.", " ", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"st1", "->", "1"}], ",", 
+          RowBox[{"st2", "->", 
+           RowBox[{"-", "1"}]}]}], "}"}]}], ",", 
+       RowBox[{"en", "/.", " ", 
+        RowBox[{"{", 
+         RowBox[{
+          RowBox[{"st1", "->", "1"}], ",", 
+          RowBox[{"st2", "->", "1"}]}], "}"}]}]}], "}"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"ptemp", "=", 
+     RowBox[{"Exp", "[", 
+      RowBox[{
+       RowBox[{"-", "Energy1"}], "/", "T"}], "]"}]}], ";"}], "\n", 
+   RowBox[{
+    RowBox[{"prob", "=", 
+     RowBox[{
+      RowBox[{"1", "/", 
+       RowBox[{"Total", "[", "ptemp", "]"}]}], "*", "ptemp"}]}], ";"}], 
+   "\[IndentingNewLine]", "\n", 
+   RowBox[{
+    RowBox[{"theoreticalPlot", "=", 
+     RowBox[{"BarChart", "[", 
+      RowBox[{"prob", ",", 
+       RowBox[{"ChartLabels", "->", 
+        RowBox[{"Placed", "[", 
+         RowBox[{
+          RowBox[{"Map", "[", 
+           RowBox[{"ToString", ",", 
+            RowBox[{"{", 
+             RowBox[{
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"-", "1"}], ",", 
+                RowBox[{"-", "1"}]}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{
+                RowBox[{"-", "1"}], ",", "1"}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", 
+                RowBox[{"-", "1"}]}], "}"}], ",", 
+              RowBox[{"{", 
+               RowBox[{"1", ",", "1"}], "}"}]}], "}"}]}], "]"}], ",", 
+          "Below"}], "]"}]}], ",", 
+       RowBox[{"LabelingFunction", "->", 
+        RowBox[{"(", 
+         RowBox[{
+          RowBox[{"Placed", "[", 
+           RowBox[{"#", ",", "Above"}], "]"}], "&"}], ")"}]}], ",", 
+       RowBox[{
+       "PlotLabel", "->", "\"\<Theoretical: Boltzmann Distribution\>\""}]}], 
+      "]"}]}], ";"}], "\[IndentingNewLine]", "\n", 
+   RowBox[{"Grid", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"{", "experimentalPlot", "}"}], ",", 
+      RowBox[{"{", "theoreticalPlot", "}"}]}], "}"}], "]"}], 
+   "\n"}]}]], "Input",
+ CellChangeTimes->{{3.9328191434625688`*^9, 3.9328191434625688`*^9}, 
+   3.932819264396971*^9, {3.932819356296091*^9, 3.9328193575459957`*^9}, 
+   3.9328194296492596`*^9, 3.9328194922257175`*^9, 3.932819575498794*^9, {
+   3.932820145669199*^9, 3.9328201864299974`*^9}, 3.932820249876807*^9, 
+   3.932820286196482*^9, 
+   3.932820474923874*^9},ExpressionUUID->"fb92e166-da4a-4fff-950c-\
+85955892c54e"],
+
+Cell[BoxData[
+ TagBox[GridBox[{
+    {
+     GraphicsBox[{
+       {Opacity[0], 
+        PointBox[{{-0.4116533139111435, 0.}, {4.35360524399126, 0.}}]}, {{}, 
+        {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+         0.6789999999999999], Thickness[Small]}], 
+         {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+          0.6789999999999999], Thickness[Small]}], 
+          TagBox[
+           DynamicBox[{
+             FEPrivate`If[
+              CurrentValue["MouseOver"], 
+              EdgeForm[{
+                GrayLevel[0.5], 
+                AbsoluteThickness[1.5], 
+                Opacity[0.66]}], {}, {}], 
+             
+             RectangleBox[{0.5487982520029133, 0.}, {1.4512017479970867`, 
+              0.4300227990880365}, "RoundingRadius" -> 0]},
+            
+            ImageSizeCache->{{48.33973811739948, 
+             78.6129174471526}, {-23.158882612498054`, 59.07812500000001}}],
+           "DelayedMouseEffectStyle"]}, 
+         {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+          0.6789999999999999], Thickness[Small]}], 
+          TagBox[
+           DynamicBox[{
+             FEPrivate`If[
+              CurrentValue["MouseOver"], 
+              EdgeForm[{
+                GrayLevel[0.5], 
+                AbsoluteThickness[1.5], 
+                Opacity[0.66]}], {}, {}], 
+             
+             RectangleBox[{1.5487982520029133`, 0.}, {2.4512017479970867`, 
+              0.06671733130674773}, "RoundingRadius" -> 0]},
+            
+            ImageSizeCache->{{81.33293845618158, 111.60611778593471`}, {
+             45.896762457199635`, 59.07812500000001}}],
+           "DelayedMouseEffectStyle"]}, 
+         {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+          0.6789999999999999], Thickness[Small]}], 
+          TagBox[
+           DynamicBox[{
+             FEPrivate`If[
+              CurrentValue["MouseOver"], 
+              EdgeForm[{
+                GrayLevel[0.5], 
+                AbsoluteThickness[1.5], 
+                Opacity[0.66]}], {}, {}], 
+             
+             RectangleBox[{2.5487982520029133`, 0.}, {3.4512017479970867`, 
+              0.5032598696052157}, "RoundingRadius" -> 0]},
+            
+            ImageSizeCache->{{114.3261387949637, 
+             144.5993181247168}, {-37.07949101529629, 59.07812500000001}}],
+           "DelayedMouseEffectStyle"]}}, {}, {}}, {}, {InsetBox[
+         RowBox[{"{", 
+          RowBox[{"\<\"1.\"\>", ",", "\<\"-1.\"\>"}], "}"}], 
+         Offset[{0, -4}, {1., 0.}], ImageScaled[{0.5, 1}]], InsetBox[
+         FractionBox["10751", "25001"], 
+         Offset[{0, 4}, {1., 0.4300227990880365}], ImageScaled[{0.5, 0}]], 
+        InsetBox[
+         RowBox[{"{", 
+          RowBox[{"\<\"1.\"\>", ",", "\<\"1.\"\>"}], "}"}], 
+         Offset[{0, -4}, {2., 0.}], ImageScaled[{0.5, 1}]], InsetBox[
+         FractionBox["1668", "25001"], 
+         Offset[{0, 4}, {2., 0.06671733130674773}], ImageScaled[{0.5, 0}]], 
+        InsetBox[
+         RowBox[{"{", 
+          RowBox[{"\<\"-1.\"\>", ",", "\<\"1.\"\>"}], "}"}], 
+         Offset[{0, -4}, {3., 0.}], ImageScaled[{0.5, 1}]], InsetBox[
+         FractionBox["12582", "25001"], 
+         Offset[{0, 4}, {3., 0.5032598696052157}], 
+         ImageScaled[{0.5, 0}]]}, {}, {}, 
+       StyleBox[
+        StyleBox[{
+          {Thickness[Tiny], 
+           LineBox[{{-0.4116533139111435, 0.}, {4.430862345229425, 0.}}], 
+           StyleBox[{}, "GraphicsLabel",
+            StripOnInput->False]}, 
+          StyleBox[{
+            {Thickness[Tiny], 
+             LineBox[{{0.5487982520029133, 0.}, 
+               Offset[{-1.102182119232618*^-15, -6.}, {0.5487982520029133, 
+                0.}]}], 
+             LineBox[{{3.4512017479970867`, 0.}, 
+               Offset[{-1.102182119232618*^-15, -6.}, {3.4512017479970867`, 
+                0.}]}], {{}, {}, {}, {}, {}}}, 
+            StyleBox[{}, "GraphicsLabel",
+             StripOnInput->False]}, "GraphicsTicks",
+           StripOnInput->False]},
+         Antialiasing->False], "GraphicsAxes",
+        StripOnInput->False]},
+      AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+      Axes->{False, True},
+      AxesLabel->{None, None},
+      AxesOrigin->{-0.4116533139111435, 0.},
+      CoordinatesToolOptions:>{"DisplayFunction" -> ({
+          Identity[
+           Part[#, 1]], 
+          Identity[
+           Part[#, 2]]}& ), "CopiedValueFunction" -> ({
+          Identity[
+           Part[#, 1]], 
+          Identity[
+           Part[#, 2]]}& )},
+      DisplayFunction->Identity,
+      FrameLabel->{{None, None}, {None, None}},
+      FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+      GridLines->{None, None},
+      GridLinesStyle->Directive[
+        GrayLevel[0.5, 0.4]],
+      PlotLabel->FormBox["\"Experimental: Solving the ODE\"", TraditionalForm],
+      PlotRange->{{All, All}, {All, All}},
+      PlotRangePadding->{{
+         Scaled[0.02], 
+         Scaled[0.02]}, {
+         Scaled[0.02], 
+         Scaled[0.05]}},
+      Ticks->{None, Automatic}]},
+    {
+     GraphicsBox[{
+       {Opacity[0], 
+        PointBox[{{0.0195484340859432, 0.}, {4.902403495994173, 0.}}]}, {{}, 
+        {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+         0.6719999999999999], Thickness[Small]}], 
+         {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+          0.6719999999999999], Thickness[Small]}], 
+          TagBox[
+           DynamicBox[{
+             FEPrivate`If[
+              CurrentValue["MouseOver"], 
+              EdgeForm[{
+                GrayLevel[0.5], 
+                AbsoluteThickness[1.5], 
+                Opacity[0.66]}], {}, {}], 
+             
+             RectangleBox[{0.5487982520029133, 0.}, {1.4512017479970867`, 
+              0.0011594797936608971`}, "RoundingRadius" -> 0]},
+            
+            ImageSizeCache->{{31.780293945537785`, 59.01794753564633}, {
+             48.35951696843863, 49.078125}}],
+           "DelayedMouseEffectStyle"]}, 
+         {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+          0.6719999999999999], Thickness[Small]}], 
+          TagBox[
+           DynamicBox[{
+             FEPrivate`If[
+              CurrentValue["MouseOver"], 
+              EdgeForm[{
+                GrayLevel[0.5], 
+                AbsoluteThickness[1.5], 
+                Opacity[0.66]}], {}, {}], 
+             
+             RectangleBox[{1.5487982520029133`, 0.}, {2.4512017479970867`, 
+              0.46776753423582124`}, "RoundingRadius" -> 0]},
+            
+            ImageSizeCache->{{61.40967116847486, 
+             88.64732475858341}, {-39.61464942062362, 49.078125}}],
+           "DelayedMouseEffectStyle"]}, 
+         {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+          0.6719999999999999], Thickness[Small]}], 
+          TagBox[
+           DynamicBox[{
+             FEPrivate`If[
+              CurrentValue["MouseOver"], 
+              EdgeForm[{
+                GrayLevel[0.5], 
+                AbsoluteThickness[1.5], 
+                Opacity[0.66]}], {}, {}], 
+             
+             RectangleBox[{2.5487982520029133`, 0.}, {3.4512017479970867`, 
+              0.46776753423582124`}, "RoundingRadius" -> 0]},
+            
+            ImageSizeCache->{{91.03904839141194, 
+             118.27670198152049`}, {-39.61464942062362, 49.078125}}],
+           "DelayedMouseEffectStyle"]}, 
+         {RGBColor[0.982864, 0.7431472, 0.3262672], EdgeForm[{Opacity[
+          0.6719999999999999], Thickness[Small]}], 
+          TagBox[
+           DynamicBox[{
+             FEPrivate`If[
+              CurrentValue["MouseOver"], 
+              EdgeForm[{
+                GrayLevel[0.5], 
+                AbsoluteThickness[1.5], 
+                Opacity[0.66]}], {}, {}], 
+             
+             RectangleBox[{3.5487982520029133`, 0.}, {4.451201747997087, 
+              0.06330545173469679}, "RoundingRadius" -> 0]},
+            
+            ImageSizeCache->{{120.66842561434902`, 147.90607920445754`}, {
+             36.64253089436221, 49.078125}}],
+           "DelayedMouseEffectStyle"]}}, {}, {}}, {}, {
+        InsetBox["\<\"{-1, -1}\"\>", Offset[{0, -4}, {1., 0.}], 
+         ImageScaled[{0.5, 1}]], 
+        InsetBox["0.0011594797936608971`", 
+         Offset[{0, 4}, {1., 0.0011594797936608971}], ImageScaled[{0.5, 0}]], 
+        InsetBox["\<\"{-1, 1}\"\>", Offset[{0, -4}, {2., 0.}], 
+         ImageScaled[{0.5, 1}]], 
+        InsetBox["0.46776753423582124`", 
+         Offset[{0, 4}, {2., 0.46776753423582124}], ImageScaled[{0.5, 0}]], 
+        InsetBox["\<\"{1, -1}\"\>", Offset[{0, -4}, {3., 0.}], 
+         ImageScaled[{0.5, 1}]], 
+        InsetBox["0.46776753423582124`", 
+         Offset[{0, 4}, {3., 0.46776753423582124}], ImageScaled[{0.5, 0}]], 
+        InsetBox["\<\"{1, 1}\"\>", Offset[{0, -4}, {4., 0.}], 
+         ImageScaled[{0.5, 1}]], 
+        InsetBox["0.06330545173469679`", 
+         Offset[{0, 4}, {4., 0.06330545173469679}], 
+         ImageScaled[{0.5, 0}]]}, {}, {}, 
+       StyleBox[
+        StyleBox[{
+          {Thickness[Tiny], 
+           LineBox[{{0.0195484340859432, 0.}, {4.991036562272396, 0.}}], 
+           StyleBox[{}, "GraphicsLabel",
+            StripOnInput->False]}, 
+          StyleBox[{
+            {Thickness[Tiny], 
+             LineBox[{{0.5487982520029133, 0.}, 
+               Offset[{-1.102182119232618*^-15, -6.}, {0.5487982520029133, 
+                0.}]}], 
+             LineBox[{{4.451201747997087, 0.}, 
+               Offset[{-1.102182119232618*^-15, -6.}, {4.451201747997087, 
+                0.}]}], {{}, {}, {}, {}, {}, {}}}, 
+            StyleBox[{}, "GraphicsLabel",
+             StripOnInput->False]}, "GraphicsTicks",
+           StripOnInput->False]},
+         Antialiasing->False], "GraphicsAxes",
+        StripOnInput->False]},
+      AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+      Axes->{False, True},
+      AxesLabel->{None, None},
+      AxesOrigin->{0.0195484340859432, 0.},
+      CoordinatesToolOptions:>{"DisplayFunction" -> ({
+          Identity[
+           Part[#, 1]], 
+          Identity[
+           Part[#, 2]]}& ), "CopiedValueFunction" -> ({
+          Identity[
+           Part[#, 1]], 
+          Identity[
+           Part[#, 2]]}& )},
+      DisplayFunction->Identity,
+      FrameLabel->{{None, None}, {None, None}},
+      FrameTicks->{{Automatic, Automatic}, {Automatic, Automatic}},
+      GridLines->{None, None},
+      GridLinesStyle->Directive[
+        GrayLevel[0.5, 0.4]],
+      PlotLabel->FormBox[
+       "\"Theoretical: Boltzmann Distribution\"", TraditionalForm],
+      PlotRange->{{All, All}, {All, All}},
+      PlotRangePadding->{{
+         Scaled[0.02], 
+         Scaled[0.02]}, {
+         Scaled[0.02], 
+         Scaled[0.05]}},
+      Ticks->{None, Automatic}]}
+   },
+   AutoDelete->False,
+   GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
+  "Grid"]], "Output",
+ CellChangeTimes->{3.9328191452750235`*^9, 3.9328192673660965`*^9, 
+  3.932819358983548*^9, 3.932819430587084*^9, 3.932819493752254*^9, 
+  3.932819576405038*^9, 3.9328201618387537`*^9, 3.932820250935497*^9, 
+  3.932820315291484*^9},
+ CellLabel->
+  "Out[171]=",ExpressionUUID->"d565bc61-4f6b-426e-91b3-d18e77779ecb"]
+}, Open  ]]
+},
+WindowSize->{949., 460.5},
+WindowMargins->{{0, Automatic}, {Automatic, 0}},
+FrontEndVersion->"13.1 for Microsoft Windows (64-bit) (August 22, 2022)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"079a2cda-6afb-4ad7-a4b7-43daea1277d8"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[CellGroupData[{
+Cell[580, 22, 15247, 418, 1151, "Input",ExpressionUUID->"fb92e166-da4a-4fff-950c-85955892c54e"],
+Cell[15830, 442, 11230, 270, 309, "Output",ExpressionUUID->"d565bc61-4f6b-426e-91b3-d18e77779ecb"]
+}, Open  ]]
+}
+]
+*)
+
